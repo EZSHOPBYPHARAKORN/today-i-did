@@ -10,11 +10,12 @@
     <script src="app.js" defer></script>
   </head>
   <body>
+    <div class="ambient-backdrop" aria-hidden="true"><span></span><span></span><span></span></div>
     <header class="site-header">
       <div class="shell header-inner">
         <a class="brand" href="#" aria-label="Today I Did home">
           <span class="brand-mark" aria-hidden="true">✓</span>
-          <span>Today I Did</span>
+          <span class="brand-copy"><strong>Today I Did</strong><small>Focus workspace</small></span>
         </a>
         <div class="header-actions">
           <div class="user-controls" id="user-controls" hidden>
@@ -57,9 +58,10 @@
 
       <section class="workspace-view" id="activities-view">
       <section class="hero" aria-labelledby="page-title">
+        <div class="hero-signal"><span></span> Today’s focus</div>
         <p class="eyebrow" id="date-label"></p>
-        <h1 id="page-title">Small wins add up.</h1>
-        <p>Capture what you finished, notice your momentum, and give yourself some credit.</p>
+        <h1 id="page-title">A clear view of <span>your progress.</span></h1>
+        <p>Capture completed work, reflect on your momentum, and keep the next meaningful step close at hand.</p>
       </section>
 
       <section class="stats-grid" aria-label="Activity statistics">
@@ -75,13 +77,17 @@
           <span class="stat-icon mint" aria-hidden="true">✓</span>
           <div><strong id="total-stat">0</strong><span>All time</span></div>
         </article>
+        <article class="stat-card momentum-card">
+          <div class="progress-ring" id="weekly-progress-ring" style="--progress: 0%" role="progressbar" aria-label="Weekly activity goal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="weekly-progress-value">0%</span></div>
+          <div><strong>Weekly momentum</strong><span>Target: 7 completed wins</span></div>
+        </article>
       </section>
 
       <section class="panel add-panel" aria-labelledby="form-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Log a win</p>
-            <h2 id="form-title">What did you accomplish?</h2>
+            <p class="eyebrow">Quick capture</p>
+            <h2 id="form-title">Log your latest win</h2>
           </div>
         </div>
         <form id="activity-form">
@@ -107,8 +113,8 @@
       <section class="activities-section" aria-labelledby="activities-title">
         <div class="section-heading activities-heading">
           <div>
-            <p class="eyebrow">Your progress</p>
-            <h2 id="activities-title">Completed activities</h2>
+            <p class="eyebrow">Activity timeline</p>
+            <h2 id="activities-title">Recent accomplishments</h2>
           </div>
           <span class="result-count" id="result-count" aria-live="polite">0 activities</span>
         </div>
