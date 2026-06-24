@@ -18,6 +18,7 @@
     activityEmpty: $("#empty-state"), emptyTitle: $("#empty-title"), emptyMessage: $("#empty-message"),
     search: $("#search-input"), categoryFilter: $("#category-filter"), periodButtons: [...document.querySelectorAll("[data-period]")],
     dailyStat: $("#daily-stat"), weeklyStat: $("#weekly-stat"), totalStat: $("#total-stat"), resultCount: $("#result-count"), dateLabel: $("#date-label"),
+    weeklyProgressRing: $("#weekly-progress-ring"), weeklyProgressValue: $("#weekly-progress-value"),
     missionForm: $("#mission-form"), missionTitle: $("#mission-title"), missionDescription: $("#mission-description"),
     missionDue: $("#mission-due"), missionPoints: $("#mission-points"), missionScope: $("#mission-scope"), missionSubmit: $("#mission-submit"),
     missionList: $("#mission-list"), missionEmpty: $("#mission-empty"), missionStatusFilter: $("#mission-status-filter"),
@@ -127,7 +128,12 @@
     elements.emptyTitle.textContent = activities.length ? "No matching activities" : "No activities yet";
     elements.emptyMessage.textContent = activities.length ? (hasFilters ? "Try changing your search or filters." : "Add another completed activity above.") : "Add a completed activity above. Your first small win is waiting.";
     elements.dailyStat.textContent = activities.filter((item) => isToday(item.completedAt)).length;
-    elements.weeklyStat.textContent = activities.filter((item) => isThisWeek(item.completedAt)).length;
+    const weeklyCount = activities.filter((item) => isThisWeek(item.completedAt)).length;
+    const weeklyProgress = Math.min(100, Math.round((weeklyCount / 7) * 100));
+    elements.weeklyStat.textContent = weeklyCount;
+    elements.weeklyProgressRing.style.setProperty("--progress", `${weeklyProgress}%`);
+    elements.weeklyProgressRing.setAttribute("aria-valuenow", String(weeklyProgress));
+    elements.weeklyProgressValue.textContent = `${weeklyProgress}%`;
     elements.totalStat.textContent = activities.length;
   }
 
@@ -290,7 +296,7 @@
 
   function setTheme(theme) { document.documentElement.dataset.theme = theme; localStorage.setItem(THEME_KEY, theme); elements.themeToggle.setAttribute("aria-label", `Switch to ${theme === "dark" ? "light" : "dark"} mode`); }
   function initTheme() { const saved = localStorage.getItem(THEME_KEY); const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; setTheme(saved === "dark" || saved === "light" ? saved : preferred); }
-  function switchView(name) { elements.workspaceButtons.forEach((button) => button.classList.toggle("active", button.dataset.view === name)); elements.workspaceViews.forEach((view) => { view.hidden = view.id !== `${name}-view`; }); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  function switchView(name) { elements.workspaceButtons.forEach((button) => { const active = button.dataset.view === name; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); }); elements.workspaceViews.forEach((view) => { view.hidden = view.id !== `${name}-view`; }); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   function updateAuthMode() {
     const signup = authMode === "signup"; elements.authTitle.textContent = signup ? "Create your account" : "Welcome back";
@@ -334,7 +340,7 @@
 
   elements.activityForm.addEventListener("submit", saveActivity); elements.cancelEdit.addEventListener("click", resetActivityForm); elements.activityList.addEventListener("click", handleActivityAction);
   elements.search.addEventListener("input", renderActivities); elements.categoryFilter.addEventListener("change", renderActivities);
-  elements.periodButtons.forEach((button) => button.addEventListener("click", () => { activePeriod = button.dataset.period; elements.periodButtons.forEach((item) => item.classList.toggle("active", item === button)); renderActivities(); }));
+  elements.periodButtons.forEach((button) => button.addEventListener("click", () => { activePeriod = button.dataset.period; elements.periodButtons.forEach((item) => { const active = item === button; item.classList.toggle("active", active); item.setAttribute("aria-pressed", String(active)); }); renderActivities(); }));
   elements.workspaceButtons.forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
   elements.missionForm.addEventListener("submit", createMission); elements.missionStatusFilter.addEventListener("change", renderMissions); elements.missionList.addEventListener("click", handleMissionAction); elements.reviewList.addEventListener("click", handleMissionAction);
   elements.classroomForm.addEventListener("submit", createClassroom); elements.joinForm.addEventListener("submit", joinClassroom); elements.classroomList.addEventListener("click", handleClassroomAction);
@@ -343,6 +349,8 @@
   elements.resendVerification.addEventListener("click", resendVerification);
   elements.authForm.addEventListener("submit", handleAuth); elements.signOut.addEventListener("click", async () => { await db.auth.signOut(); showToast("Signed out"); });
 
+  elements.workspaceButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.classList.contains("active"))));
+  elements.periodButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.classList.contains("active"))));
   elements.dateLabel.textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(new Date());
   initTheme(); updateAuthMode(); renderAll();
   db.auth.onAuthStateChange((_event, session) => setTimeout(() => showSession(session?.user), 0));
